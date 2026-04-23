@@ -13,8 +13,8 @@
       --text: #0d2b1a; --muted: #6b8f76; --border: #c8e6c9;
     }
     body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    .screen { display: none; min-height: 100vh; }
-    .screen.active { display: block; }
+    .screen { display: none !important; min-height: 100vh; }
+    .screen.active { display: block !important; }
     @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
     @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
     @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
