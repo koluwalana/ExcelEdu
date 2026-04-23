@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExcelEdu - Pass JAMB & WAEC First Time</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #00c853;
+      --green-dark: #00922e;
+      --green-light: #e8faf0;
+      --orange: #ff6d00;
+      --red: #ff1744;
+      --bg: #f0faf4;
+      --white: #ffffff;
+      --text: #0d2b1a;
+      --muted: #6b8f76;
+      --border: #c8e6c9;
+    }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .flex-screen { display: none; flex-direction: column; min-height: 100vh; }
+    .flex-screen.active { display: flex; }
+
+    /* ANIMATIONS */
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    @keyframes pop { 0%{transform:scale(0.8);opacity:0} 100%{transform:scale(1);opacity:1} }
+    .float { animation: float 3s ease-in-out infinite; display: inline-block; }
+    .fadeUp { animation: fadeUp 0.4s ease; }
+    .spin { animation: spin 1s linear infinite; display: inline-block; }
+
+    /* BUTTONS */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), #00e676);
+      color: white; border: none; border-radius: 14px;
+      padding: 14px 24px; font-weight: 900; font-size: 16px;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      box-shadow: 0 6px 20px rgba(0,200,83,0.35);
+      transition: transform 0.15s; width: 100%;
+    }
+    .btn-primary:hover { transform: scale(1.02); }
+    .btn-secondary {
+      background: white; color: var(--green-dark);
+      border: 2px solid var(--green); border-radius: 14px;
+      padding: 13px 24px; font-weight: 800; font-size: 15px;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: all 0.15s; width: 100%;
+    }
+    .btn-ghost {
+      background: none; border: none; color: #888;
+      font-size: 13px; cursor: pointer; font-weight: 700;
+      font-family: 'Nunito', sans-serif; padding: 8px;
+    }
+
+    /* CARDS */
+    .card {
+      background: white; border-radius: 16px;
+      padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      border: 1px solid #e8f5e9;
+    }
+
+    /* HEADER */
+    .app-header {
+      background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+      padding: 14px 20px 0;
+      box-shadow: 0 4px 20px rgba(0,200,83,0.3);
+    }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fredoka One', cursive; font-size: 16px; color: white;
+    }
+    .logo-text { font-family: 'Fredoka One', cursive; font-size: 18px; color: white; }
+    .header-stats { display: flex; gap: 14px; align-items: center; }
+    .stat-box { text-align: center; }
+    .stat-val { font-weight: 900; font-size: 16px; color: white; }
+    .stat-label { font-size: 9px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }
+    .badge { background: rgba(255,255,255,0.2); border-radius: 12px; padding: 2px 10px; font-size: 11px; color: white; font-weight: 700; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.1); border-radius: 12px 12px 0 0; padding: 4px; }
+    .tab {
+      flex: 1; padding: 8px 4px; border-radius: 8px; border: none;
+      background: transparent; color: rgba(255,255,255,0.8);
+      font-weight: 600; font-size: 11px; cursor: pointer;
+      transition: all 0.15s; font-family: 'Nunito', sans-serif;
+      text-align: center;
+    }
+    .tab.active { background: white; color: var(--green-dark); font-weight: 800; }
+    .tab-icon { font-size: 16px; display: block; }
+
+    /* LANDING */
+    #landing {
+      background: linear-gradient(160deg, #e8f5e9 0%, #f9fbe7 60%, #e3f2fd 100%);
+      min-height: 100vh;
+    }
+    .landing-nav {
+      padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,255,255,0.7); backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+      border-bottom: 1px solid rgba(0,200,83,0.15);
+    }
+    .landing-nav .logo-text { color: var(--green-dark); }
+    .nav-btn {
+      background: linear-gradient(135deg, #00c853, #00e676);
+      color: white; border: none; border-radius: 20px;
+      padding: 8px 20px; font-weight: 700; font-size: 14px;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      box-shadow: 0 4px 12px rgba(0,200,83,0.3);
+    }
+    .hero { text-align: center; padding: 56px 24px 40px; }
+    .hero h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(30px, 8vw, 48px);
+      color: var(--green-dark); line-height: 1.15; margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--orange); }
+    .hero p { font-size: 15px; color: #4a7a5a; max-width: 400px; margin: 0 auto 32px; line-height: 1.7; font-weight: 600; }
+    .hero-note { margin-top: 12px; font-size: 12px; color: #888; }
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 0 20px; max-width: 500px; margin: 0 auto; }
+    .feature-card {
+      background: white; border-radius: 16px; padding: 18px 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      border: 1px solid rgba(0,200,83,0.12);
+      animation: pop 0.4s ease both;
+    }
+    .feature-icon { font-size: 28px; margin-bottom: 8px; }
+    .feature-title { font-weight: 800; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+    .feature-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .price-card {
+      background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+      border-radius: 20px; padding: 28px 24px;
+      text-align: center; color: white;
+      box-shadow: 0 12px 32px rgba(0,200,83,0.35);
+      margin: 20px 20px 48px; max-width: 460px; margin-left: auto; margin-right: auto;
+    }
+    .price-amount { font-family: 'Fredoka One', cursive; font-size: 36px; margin-bottom: 4px; }
+    .price-desc { font-size: 14px; opacity: 0.85; margin-bottom: 20px; font-weight: 600; }
+    .price-item { font-size: 14px; margin-bottom: 6px; font-weight: 700; }
+    .price-btn {
+      margin-top: 20px; background: white; color: var(--green-dark);
+      border: none; border-radius: 12px; padding: 14px 36px;
+      font-weight: 900; font-size: 16px; cursor: pointer; width: 100%;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    /* CONTENT AREA */
+    .content { padding: 20px; animation: fadeUp 0.4s ease; }
+
+    /* HOME */
+    .section-label { font-size: 11px; font-weight: 800; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .exam-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .exam-btn {
+      flex: 1; padding: 12px; border-radius: 12px;
+      border: 2px solid #ddd; background: white;
+      color: #888; font-weight: 800; font-size: 16px;
+      cursor: pointer; transition: all 0.15s; font-family: 'Nunito', sans-serif;
+    }
+    .exam-btn.active { border-color: var(--green); background: var(--green-light); color: var(--green-dark); }
+    .subjects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 28px; }
+    .subject-btn {
+      padding: 10px 12px; border-radius: 10px; text-align: left;
+      border: 2px solid transparent; background: white;
+      color: #444; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; font-family: 'Nunito', sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .subject-btn.active { border-color: var(--green); background: var(--green-light); color: var(--green-dark); font-weight: 800; }
+    .action-row { display: flex; flex-direction: column; gap: 12px; }
+
+    /* QUIZ */
+    .quiz-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .subject-badge { background: var(--green-light); border: 1px solid var(--green); border-radius: 20px; padding: 4px 14px; font-size: 12px; color: var(--green-dark); font-weight: 800; }
+    .score-text { font-size: 13px; color: #888; font-weight: 700; }
+    .loading-box { text-align: center; padding: 60px 20px; }
+    .loading-box p { color: #888; margin-top: 16px; font-weight: 700; }
+    .question-label { font-size: 10px; font-weight: 800; color: var(--green); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+    .question-text { font-size: 16px; line-height: 1.7; color: var(--text); font-weight: 600; }
+    .options-list { display: flex; flex-direction: column; gap: 10px; margin: 16px 0; }
+    .option-btn {
+      padding: 14px 16px; border-radius: 12px; text-align: left;
+      background: white; border: 2px solid #e8f5e9;
+      color: #333; font-size: 14px; cursor: pointer;
+      display: flex; gap: 12px; align-items: flex-start;
+      transition: all 0.2s; font-family: 'Nunito', sans-serif; font-weight: 700;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); width: 100%;
+    }
+    .option-btn.correct { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+    .option-btn.wrong { background: #fff3f3; border-color: var(--red); color: #cc0000; }
+    .option-btn:disabled { cursor: default; }
+    .option-key {
+      min-width: 28px; height: 28px; border-radius: 8px;
+      background: #f0f4f0; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: #666; flex-shrink: 0;
+    }
+    .option-btn.correct .option-key { background: var(--green); color: white; }
+    .option-btn.wrong .option-key { background: var(--red); color: white; }
+    .explanation-box {
+      background: var(--green-light); border: 2px solid var(--green);
+      border-radius: 14px; padding: 16px; margin-bottom: 16px;
+      animation: fadeUp 0.3s ease;
+    }
+    .explanation-title { font-size: 11px; font-weight: 900; color: var(--green-dark); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .explanation-text { font-size: 13px; color: #2d5a3d; line-height: 1.7; font-weight: 600; }
+
+    /* MOCK */
+    .mock-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .timer { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--green-dark); }
+    .timer.urgent { color: var(--red); }
+    .progress-bar { background: #e8f5e9; border-radius: 8px; height: 6px; margin-bottom: 16px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), #00e676); border-radius: 8px; transition: width 1s linear; }
+    .q-nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .q-nav-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: none;
+      font-weight: 800; font-size: 12px; cursor: pointer;
+      font-family: 'Nunito', sans-serif; background: white; color: #888;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .q-nav-btn.current { background: var(--green); color: white; }
+    .q-nav-btn.answered { background: var(--green-light); color: var(--green-dark); }
+    .mock-actions { display: flex; gap: 10px; }
+    .btn-submit {
+      flex: 1; padding: 12px; border-radius: 10px;
+      background: linear-gradient(135deg, #ff6d00, #ff9100);
+      color: white; font-weight: 800; font-size: 15px;
+      border: none; cursor: pointer; font-family: 'Nunito', sans-serif;
+    }
+    .btn-next-mock {
+      flex: 1; padding: 12px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--green), #00e676);
+      color: white; font-weight: 800; font-size: 15px;
+      border: none; cursor: pointer; font-family: 'Nunito', sans-serif;
+    }
+    .result-screen { text-align: center; padding: 24px 0; animation: fadeUp 0.4s ease; }
+    .result-icon { font-size: 64px; margin-bottom: 12px; }
+    .result-title { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--green-dark); margin-bottom: 8px; }
+    .result-score { font-size: 48px; font-weight: 900; color: var(--orange); margin-bottom: 8px; }
+    .result-msg { font-size: 15px; color: var(--muted); margin-bottom: 20px; font-weight: 700; }
+    .result-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .result-item {
+      background: white; border-radius: 12px; padding: 12px 16px;
+      text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .result-item.correct-item { border: 2px solid var(--green); }
+    .result-item.wrong-item { border: 2px solid #ff6060; }
+    .result-item-label { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+    .result-item.correct-item .result-item-label { color: var(--green-dark); }
+    .result-item.wrong-item .result-item-label { color: #cc0000; }
+    .result-item-q { font-size: 12px; color: #444; line-height: 1.5; font-weight: 600; }
+
+    /* CHAT */
+    .chat-header { padding: 12px 20px; border-bottom: 1px solid #e8f5e9; background: white; }
+    .chat-title { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--green-dark); }
+    .chat-subtitle { font-size: 11px; color: var(--muted); font-weight: 700; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #f8fdf9; }
+    .msg { display: flex; }
+    .msg.user { justify-content: flex-end; }
+    .msg-bubble {
+      max-width: 82%; padding: 12px 16px;
+      font-size: 14px; line-height: 1.7; font-weight: 600;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .msg.assistant .msg-bubble {
+      border-radius: 18px 18px 18px 4px;
+      background: white; color: var(--text);
+      border: 1px solid #e8f5e9;
+    }
+    .msg.user .msg-bubble {
+      border-radius: 18px 18px 4px 18px;
+      background: linear-gradient(135deg, #00c853, #00e676);
+      color: white;
+    }
+    .typing { display: flex; gap: 6px; padding: 8px 16px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .dot:nth-child(1) { animation: bounce 0.8s ease 0s infinite; }
+    .dot:nth-child(2) { animation: bounce 0.8s ease 0.15s infinite; }
+    .dot:nth-child(3) { animation: bounce 0.8s ease 0.3s infinite; }
+    .chat-input-area { padding: 12px 16px; border-top: 1px solid #e8f5e9; background: white; display: flex; gap: 8px; align-items: flex-end; }
+    .chat-textarea {
+      flex: 1; background: var(--green-light); border: 2px solid var(--border);
+      border-radius: 12px; padding: 10px 14px; color: var(--text);
+      font-size: 14px; resize: none; outline: none;
+      font-family: 'Nunito', sans-serif; font-weight: 600;
+    }
+    .chat-textarea:focus { border-color: var(--green); }
+    .send-btn {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--green), #00e676);
+      border: none; cursor: pointer; color: white; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .send-btn:disabled { background: #eee; cursor: default; }
+
+    /* PAYWALL */
+    .paywall-wrap {
+      min-height: 100vh; background: linear-gradient(160deg, #e8f5e9, #f9fbe7);
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .paywall-inner { max-width: 400px; width: 100%; }
+    .paywall-icon { font-size: 52px; text-align: center; margin-bottom: 12px; }
+    .paywall-title { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--green-dark); text-align: center; margin-bottom: 8px; }
+    .paywall-desc { color: var(--muted); font-size: 15px; line-height: 1.6; font-weight: 600; text-align: center; margin-bottom: 28px; }
+    .paywall-card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 16px; }
+    .input-label { font-size: 13px; font-weight: 700; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; display: block; }
+    .email-input {
+      width: 100%; padding: 12px 14px; border-radius: 10px;
+      border: 2px solid var(--border); font-size: 15px;
+      font-family: 'Nunito', sans-serif; color: var(--text); outline: none;
+    }
+    .email-input:focus { border-color: var(--green); }
+    .pay-btn {
+      margin-top: 16px; width: 100%;
+      background: linear-gradient(135deg, var(--green), #00e676);
+      color: white; border: none; border-radius: 12px; padding: 14px;
+      font-weight: 900; font-size: 16px; cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,200,83,0.35);
+      font-family: 'Nunito', sans-serif;
+    }
+    .secure-note { text-align: center; font-size: 11px; color: #aaa; margin-top: 10px; }
+
+    /* SUCCESS */
+    .success-wrap {
+      min-height: 100vh; background: linear-gradient(135deg, #e8f5e9, #f9fbe7);
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      text-align: center;
+    }
+    .success-inner { max-width: 360px; }
+    .success-icon { font-size: 72px; margin-bottom: 16px; display: inline-block; }
+    .success-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--green-dark); margin-bottom: 12px; }
+    .success-msg { color: #4a7a5a; font-size: 16px; margin-bottom: 32px; line-height: 1.6; font-weight: 600; }
+
+    /* MAIN APP */
+    #app { max-width: 480px; margin: 0 auto; }
+    .app-content { min-height: calc(100vh - 118px); }
+
+    /* HIDDEN */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════ LANDING ═══ -->
+<div id="landing" class="screen active">
+  <nav class="landing-nav">
+    <div class="logo">
+      <div class="logo-icon">E</div>
+      <span class="logo-text" style="color: #00922e;">ExcelEdu</span>
+    </div>
+    <button class="nav-btn" onclick="goToApp()">Start Free →</button>
+  </nav>
+
+  <div class="hero">
+    <div class="float" style="font-size:64px; margin-bottom:16px;">🎓</div>
+    <h1>Pass JAMB & WAEC<br><span>First Time. Every Time.</span></h1>
+    <p>Practice unlimited questions, get instant AI explanations, and sit timed mock exams — all for less than ₦170 per day.</p>
+    <button class="btn-primary" style="max-width:320px;" onclick="goToApp()">Try 3 Questions FREE 🚀</button>
+    <p class="hero-note">No credit card needed to start</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card" style="animation-delay:0s">
+      <div class="feature-icon">📝</div>
+      <div class="feature-title">Practice MCQs</div>
+      <div class="feature-desc">Unlimited AI-generated questions for all subjects</div>
+    </div>
+    <div class="feature-card" style="animation-delay:0.1s">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">AI Tutor Chat</div>
+      <div class="feature-desc">Ask any question, get instant clear explanations</div>
+    </div>
+    <div class="feature-card" style="animation-delay:0.2s">
+      <div class="feature-icon">⏱️</div>
+      <div class="feature-title">Mock Exams</div>
+      <div class="feature-desc">Full timed exams just like the real thing</div>
+    </div>
+    <div class="feature-card" style="animation-delay:0.3s">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Track Progress</div>
+      <div class="feature-desc">See your score and accuracy improve daily</div>
+    </div>
+  </div>
+
+  <div class="price-card" style="margin-top:28px;">
+    <div class="price-amount">₦5,000/month</div>
+    <div class="price-desc">Unlimited access · Cancel anytime</div>
+    <div class="price-item">✓ Unlimited practice questions</div>
+    <div class="price-item">✓ AI tutor available 24/7</div>
+    <div class="price-item">✓ Timed mock exams</div>
+    <div class="price-item">✓ 13 subjects covered</div>
+    <div class="price-item">✓ JAMB + WAEC syllabus</div>
+    <button class="price-btn" onclick="goToApp()">Get Started Free →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ PAYWALL ═══ -->
+<div id="paywall" class="screen">
+  <div class="paywall-wrap">
+    <div class="paywall-inner">
+      <div class="paywall-icon">🔒</div>
+      <div class="paywall-title">Free Trial Ended</div>
+      <div class="paywall-desc">You've used your 3 free questions. Unlock unlimited access for just <strong style="color:#ff6d00">₦5,000/month</strong>.</div>
+      <div class="paywall-card">
+        <label class="input-label">Your Email</label>
+        <input type="email" id="payEmail" class="email-input" placeholder="Enter your email address" />
+        <button class="pay-btn" onclick="handlePayment()">Pay ₦5,000 — Unlock Everything 🚀</button>
+        <div class="secure-note">Secured by Paystack · Cancel anytime</div>
+      </div>
+      <button class="btn-ghost" style="width:100%;text-align:center;" onclick="showScreen('app')">← Go back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ SUCCESS ═══ -->
+<div id="success" class="screen">
+  <div class="success-wrap">
+    <div class="success-inner">
+      <div class="success-icon float">🎉</div>
+      <div class="success-title">You're In!</div>
+      <div class="success-msg">Payment successful! You now have unlimited access to ExcelEdu. Time to start passing those exams! 💪</div>
+      <button class="btn-primary" style="max-width:280px;" onclick="goToApp()">Start Studying →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ MAIN APP ═══ -->
+<div id="app" class="screen">
+  <div style="max-width:480px; margin:0 auto;">
+
+    <!-- Header -->
+    <div class="app-header">
+      <div class="header-top">
+        <div class="logo">
+          <div class="logo-icon">E</div>
+          <span class="logo-text">ExcelEdu</span>
+        </div>
+        <div class="header-stats">
+          <div id="scoreBox" class="hidden">
+            <div class="stat-box">
+              <div class="stat-val" id="accStat">0%</div>
+              <div class="stat-label">Score</div>
+            </div>
+          </div>
+          <div id="streakBox" class="hidden">
+            <div class="stat-box">
+              <div class="stat-val" id="streakStat">0🔥</div>
+              <div class="stat-label">Streak</div>
+            </div>
+          </div>
+          <div id="freeBadge" class="badge">3 free left</div>
+          <div id="proBadge" class="badge hidden">✓ Pro</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('home')" id="tab-home"><span class="tab-icon">🏠</span>Home</button>
+        <button class="tab" onclick="switchTab('quiz')" id="tab-quiz"><span class="tab-icon">📝</span>Practice</button>
+        <button class="tab" onclick="switchTab('mock')" id="tab-mock"><span class="tab-icon">⏱️</span>Mock</button>
+        <button class="tab" onclick="switchTab('chat')" id="tab-chat"><span class="tab-icon">💬</span>Tutor</button>
+      </div>
+    </div>
+
+    <!-- HOME TAB -->
+    <div id="tab-content-home" class="app-content content">
+      <h2 style="font-family:'Fredoka One',cursive;font-size:24px;color:#00922e;margin-bottom:6px;">Hello, Scholar! 👋</h2>
+      <p style="color:#6b8f76;font-size:14px;margin-bottom:24px;font-weight:600;">What are you studying today?</p>
+
+      <span class="section-label">Exam</span>
+      <div class="exam-row">
+        <button class="exam-btn active" id="examJAMB" onclick="selectExam('JAMB')">JAMB</button>
+        <button class="exam-btn" id="examWAEC" onclick="selectExam('WAEC')">WAEC</button>
+      </div>
+
+      <span class="section-label">Subject</span>
+      <div class="subjects-grid" id="subjectsGrid"></div>
+
+      <div class="action-row">
+        <button class="btn-primary" onclick="startQuiz()">Start Practice Questions →</button>
+        <button class="btn-secondary" onclick="startMock()">⏱️ Start 30-Min Mock Exam</button>
+      </div>
+    </div>
+
+    <!-- QUIZ TAB -->
+    <div id="tab-content-quiz" class="app-content content hidden">
+      <div class="quiz-topbar">
+        <button class="btn-ghost" onclick="switchTab('home')">← Home</button>
+        <div class="subject-badge" id="quizBadge">JAMB · Mathematics</div>
+        <div class="score-text" id="quizScore">0/0</div>
+      </div>
+
+      <div id="quizLoading" class="loading-box">
+        <div class="spin" style="font-size:40px;">⏳</div>
+        <p>Generating your question...</p>
+      </div>
+
+      <div id="quizContent" class="hidden">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="question-label">Question</div>
+          <div class="question-text" id="questionText"></div>
+        </div>
+        <div class="options-list" id="optionsList"></div>
+        <div id="explanationBox" class="explanation-box hidden">
+          <div class="explanation-title" id="explanationTitle">✅ Correct!</div>
+          <div class="explanation-text" id="explanationText"></div>
+        </div>
+        <button id="nextBtn" class="btn-primary hidden" onclick="nextQuestion()">Next Question →</button>
+      </div>
+    </div>
+
+    <!-- MOCK TAB -->
+    <div id="tab-content-mock" class="app-content content hidden">
+      <div class="mock-topbar">
+        <button class="btn-ghost" onclick="endMock()">← Home</button>
+        <div class="timer" id="mockTimer">⏱️ --:--</div>
+        <div class="score-text" id="mockProgress">0/0</div>
+      </div>
+
+      <div id="mockLoading" class="loading-box hidden">
+        <div class="spin" style="font-size:40px;">⚙️</div>
+        <p>Building your mock exam...</p>
+        <p style="color:#aaa;font-size:13px;margin-top:6px;">Generating 10 questions</p>
+      </div>
+
+      <div id="mockResult" class="result-screen hidden"></div>
+
+      <div id="mockExam" class="hidden">
+        <div class="progress-bar"><div class="progress-fill" id="timerBar" style="width:0%"></div></div>
+        <div class="q-nav" id="qNav"></div>
+        <div id="mockQuestionArea"></div>
+      </div>
+
+      <div id="mockEmpty" class="loading-box">
+        <div style="font-size:48px;margin-bottom:16px;">⏱️</div>
+        <p style="font-size:16px;font-weight:800;color:#00922e;">Ready for a Mock Exam?</p>
+        <p style="margin-top:8px;margin-bottom:24px;">10 questions · 30 minutes · Just like the real exam</p>
+        <button class="btn-primary" style="max-width:280px;" onclick="startMock()">Start Mock Exam →</button>
+      </div>
+    </div>
+
+    <!-- CHAT TAB -->
+    <div id="tab-content-chat" class="hidden" style="display:none; flex-direction:column; height:calc(100vh - 118px);">
+      <div class="chat-header">
+        <div class="chat-title">AI Tutor 🤖</div>
+        <div class="chat-subtitle">Ask anything about JAMB & WAEC</div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg assistant">
+          <div class="msg-bubble">👋 Welcome to ExcelEdu AI! I'm your personal JAMB & WAEC tutor. Ask me anything — past question topics, explanations, formulas, anything at all. Let's get you that A1! 🎯</div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-textarea" id="chatInput" rows="2" placeholder="Ask about any topic or past question..." onkeydown="handleChatKey(event)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendChat()">→</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Paystack -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+// ═══════════════ STATE ═══════════════
+const PAYSTACK_KEY = "pk_test_907954679d2f09b6314f874efe38fe702dd313d0";
+const PRICE_KOBO = 500000;
+const FREE_LIMIT = 3;
+
+const SUBJECTS = [
+  "Mathematics","English Language","Biology","Chemistry","Physics",
+  "Government","Economics","Literature","Geography","Commerce",
+  "Agricultural Science","Christian Religious Studies","Islamic Religious Studies"
+];
+
+let state = {
+  isPaid: false,
+  freeUsed: 0,
+  exam: "JAMB",
+  subject: "Mathematics",
+  score: { correct: 0, total: 0 },
+  streak: 0,
+  currentQuestion: null,
+  answered: false,
+  // mock
+  mockQuestions: [],
+  mockAnswers: {},
+  mockCurrent: 0,
+  mockTime: 0,
+  mockRunning: false,
+  mockDone: false,
+  mockTimer: null,
+  // chat
+  chatHistory: [{ role: "assistant", content: "👋 Welcome to ExcelEdu AI! I'm your personal JAMB & WAEC tutor. Ask me anything — past question topics, explanations, formulas, anything at all. Let's get you that A1! 🎯" }],
+  chatLoading: false,
+  activeTab: "home"
+};
+
+// ═══════════════ SCREENS ═══════════════
+function showScreen(id) {
+  ["landing","paywall","success","app"].forEach(s => {
+    const el = document.getElementById(s);
+    el.classList.remove("active");
+  });
+  document.getElementById(id).classList.add("active");
+  if (id === "app") {
+    document.getElementById(id).style.display = "block";
+  }
+}
+
+function goToApp() {
+  showScreen("app");
+  switchTab("home");
+}
+
+// ═══════════════ TABS ═══════════════
+function switchTab(tab) {
+  if (tab === "quiz") { startQuiz(); return; }
+  if (tab === "mock") { initMockTab(); return; }
+
+  ["home","quiz","mock","chat"].forEach(t => {
+    const content = document.getElementById("tab-content-" + t);
+    const tabBtn = document.getElementById("tab-" + t);
+    if (content) { content.classList.add("hidden"); content.style.display = ""; }
+    if (tabBtn) tabBtn.classList.remove("active");
+  });
+
+  const chatEl = document.getElementById("tab-content-chat");
+
+  if (tab === "chat") {
+    chatEl.style.display = "flex";
+    chatEl.classList.remove("hidden");
+  } else {
+    const el = document.getElementById("tab-content-" + tab);
+    if (el) { el.classList.remove("hidden"); }
+    chatEl.style.display = "none";
+  }
+
+  const tabBtn = document.getElementById("tab-" + tab);
+  if (tabBtn) tabBtn.classList.add("active");
+  state.activeTab = tab;
+  scrollToTop();
+}
+
+function scrollToTop() { window.scrollTo(0, 0); }
+
+// ═══════════════ SUBJECTS GRID ═══════════════
+function renderSubjects() {
+  const grid = document.getElementById("subjectsGrid");
+  grid.innerHTML = SUBJECTS.map(s => `
+    <button class="subject-btn ${s === state.subject ? "active" : ""}" onclick="selectSubject('${s.replace(/'/g,"\\'")}')">
+      ${s}
+    </button>
+  `).join("");
+}
+
+function selectExam(exam) {
+  state.exam = exam;
+  document.getElementById("examJAMB").classList.toggle("active", exam === "JAMB");
+  document.getElementById("examWAEC").classList.toggle("active", exam === "WAEC");
+}
+
+function selectSubject(subject) {
+  state.subject = subject;
+  renderSubjects();
+}
+
+// ═══════════════ GATE CHECK ═══════════════
+function gateCheck(action) {
+  if (state.isPaid || state.freeUsed < FREE_LIMIT) { action(); return; }
+  showScreen("paywall");
+}
+
+// ═══════════════ HEADER STATS ═══════════════
+function updateHeader() {
+  const { correct, total } = state.score;
+  const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  if (total > 0) {
+    document.getElementById("scoreBox").classList.remove("hidden");
+    document.getElementById("streakBox").classList.remove("hidden");
+    document.getElementById("accStat").textContent = acc + "%";
+    document.getElementById("streakStat").textContent = state.streak + "🔥";
+  }
+
+  const left = Math.max(0, FREE_LIMIT - state.freeUsed);
+  document.getElementById("freeBadge").textContent = left + " free left";
+  document.getElementById("freeBadge").classList.toggle("hidden", state.isPaid);
+  document.getElementById("proBadge").classList.toggle("hidden", !state.isPaid);
+}
+
+// ═══════════════ CLAUDE API ═══════════════
+async function callClaude(messages, system) {
+  try {
+    const res = await fetch("/api/claude", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: system || `You are ExcelEdu AI, a brilliant Nigerian exam prep tutor for JAMB and WAEC.
+When asked to generate a question respond ONLY with valid JSON (no markdown, no extra text):
+{"question":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"answer":"A","explanation":"Clear encouraging explanation in simple English for Nigerian SS2/SS3 students."}
+For chat, respond as a warm encouraging Nigerian tutor in simple English.`,
+        messages,
+      }),
+    });
+    const data = await res.json();
+    return data.content?.[0]?.text || "";
+  } catch (e) { return ""; }
+}
+
+async function generateQuestion(subject, exam) {
+  const text = await callClaude([{ role: "user", content: `Generate a ${exam} ${subject} multiple choice question. Return ONLY valid JSON, nothing else.` }]);
+  try { return JSON.parse(text.replace(/```json|```/g, "").trim()); }
+  catch { return null; }
+}
+
+// ═══════════════ QUIZ ═══════════════
+function startQuiz() {
+  gateCheck(async () => {
+    ["home","mock","chat"].forEach(t => {
+      const el = document.getElementById("tab-content-" + t);
+      if (el) { el.classList.add("hidden"); el.style.display = ""; }
+      const tab = document.getElementById("tab-" + t);
+      if (tab) tab.classList.remove("active");
+    });
+    const quizEl = document.getElementById("tab-content-quiz");
+    quizEl.classList.remove("hidden");
+    document.getElementById("tab-quiz").classList.add("active");
+    state.activeTab = "quiz";
+
+    document.getElementById("quizBadge").textContent = `${state.exam} · ${state.subject}`;
+    document.getElementById("quizLoading").classList.remove("hidden");
+    document.getElementById("quizContent").classList.add("hidden");
+    document.getElementById("nextBtn").classList.add("hidden");
+    document.getElementById("explanationBox").classList.add("hidden");
+    state.answered = false;
+    scrollToTop();
+
+    const q = await generateQuestion(state.subject, state.exam);
+    state.currentQuestion = q;
+    document.getElementById("quizLoading").classList.add("hidden");
+    if (q) renderQuestion(q);
+  });
+}
+
+function renderQuestion(q) {
+  document.getElementById("quizContent").classList.remove("hidden");
+  document.getElementById("questionText").textContent = q.question;
+
+  const opts = document.getElementById("optionsList");
+  opts.innerHTML = Object.entries(q.options).map(([k, v]) => `
+    <button class="option-btn" id="opt-${k}" onclick="handleAnswer('${k}')">
+      <span class="option-key">${k}</span>
+      <span>${v}</span>
+    </button>
+  `).join("");
+
+  updateScore();
+}
+
+function handleAnswer(opt) {
+  if (state.answered) return;
+  if (!state.isPaid && state.freeUsed >= FREE_LIMIT) { showScreen("paywall"); return; }
+
+  state.answered = true;
+  const q = state.currentQuestion;
+  const correct = opt === q.answer;
+
+  state.score.correct += correct ? 1 : 0;
+  state.score.total += 1;
+  state.streak = correct ? state.streak + 1 : 0;
+  if (!state.isPaid) state.freeUsed++;
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(btn => btn.disabled = true);
+  document.getElementById("opt-" + q.answer).classList.add("correct");
+  if (!correct) document.getElementById("opt-" + opt).classList.add("wrong");
+
+  // Show explanation
+  const expBox = document.getElementById("explanationBox");
+  expBox.classList.remove("hidden");
+  document.getElementById("explanationTitle").textContent = correct ? "✅ Correct! Well done!" : "❌ Not quite — here's why:";
+  document.getElementById("explanationText").textContent = q.explanation;
+
+  document.getElementById("nextBtn").classList.remove("hidden");
+  updateScore();
+  updateHeader();
+}
+
+function nextQuestion() {
+  gateCheck(() => startQuiz());
+}
+
+function updateScore() {
+  const { correct, total } = state.score;
+  document.getElementById("quizScore").textContent = `${correct}/${total}`;
+}
+
+// ═══════════════ MOCK ═══════════════
+function initMockTab() {
+  gateCheck(() => {
+    ["home","quiz","chat"].forEach(t => {
+      const el = document.getElementById("tab-content-" + t);
+      if (el) { el.classList.add("hidden"); el.style.display = ""; }
+      const tab = document.getElementById("tab-" + t);
+      if (tab) tab.classList.remove("active");
+    });
+    const mockEl = document.getElementById("tab-content-mock");
+    mockEl.classList.remove("hidden");
+    document.getElementById("tab-mock").classList.add("active");
+    state.activeTab = "mock";
+    scrollToTop();
+  });
+}
+
+async function startMock() {
+  gateCheck(async () => {
+    initMockTab();
+    clearInterval(state.mockTimer);
+    state.mockQuestions = []; state.mockAnswers = {};
+    state.mockDone = false; state.mockTime = 0; state.mockCurrent = 0;
+    state.mockRunning = false;
+
+    document.getElementById("mockEmpty").classList.add("hidden");
+    document.getElementById("mockResult").classList.add("hidden");
+    document.getElementById("mockExam").classList.add("hidden");
+    document.getElementById("mockLoading").classList.remove("hidden");
+    document.getElementById("mockProgress").textContent = "0/10";
+    document.getElementById("mockTimer").textContent = "⏱️ 30:00";
+
+    const qs = await Promise.all(Array.from({length:10}, () => generateQuestion(state.subject, state.exam)));
+    state.mockQuestions = qs.filter(Boolean);
+
+    document.getElementById("mockLoading").classList.add("hidden");
+    document.getElementById("mockExam").classList.remove("hidden");
+
+    renderMockNav();
+    renderMockQuestion();
+    startMockTimer();
+  });
+}
+
+function startMockTimer() {
+  state.mockRunning = true;
+  state.mockTimer = setInterval(() => {
+    state.mockTime++;
+    const left = 1800 - state.mockTime;
+    if (left <= 0) { clearInterval(state.mockTimer); submitMock(); return; }
+    const mm = String(Math.floor(left / 60)).padStart(2, "0");
+    const ss = String(left % 60).padStart(2, "0");
+    const timerEl = document.getElementById("mockTimer");
+    timerEl.textContent = `⏱️ ${mm}:${ss}`;
+    timerEl.className = "timer" + (left < 300 ? " urgent" : "");
+    document.getElementById("timerBar").style.width = `${(state.mockTime / 1800) * 100}%`;
+  }, 1000);
+}
+
+function renderMockNav() {
+  const nav = document.getElementById("qNav");
+  nav.innerHTML = state.mockQuestions.map((_, i) => `
+    <button class="q-nav-btn ${i === state.mockCurrent ? "current" : ""} ${state.mockAnswers[i] !== undefined ? "answered" : ""}"
+      onclick="goMockQ(${i})">${i + 1}</button>
+  `).join("");
+  document.getElementById("mockProgress").textContent = `${Object.keys(state.mockAnswers).length}/${state.mockQuestions.length}`;
+}
+
+function renderMockQuestion() {
+  const q = state.mockQuestions[state.mockCurrent];
+  if (!q) return;
+  const isLast = state.mockCurrent === state.mockQuestions.length - 1;
+
+  document.getElementById("mockQuestionArea").innerHTML = `
+    <div class="card" style="margin-bottom:14px;">
+      <div class="question-label">Question ${state.mockCurrent + 1}</div>
+      <div class="question-text">${q.question}</div>
+    </div>
+    <div class="options-list">
+      ${Object.entries(q.options).map(([k, v]) => `
+        <button class="option-btn ${state.mockAnswers[state.mockCurrent] === k ? "correct" : ""}"
+          onclick="answerMock('${k}')">
+          <span class="option-key" style="${state.mockAnswers[state.mockCurrent] === k ? "background:#00c853;color:white;" : ""}">${k}</span>
+          <span>${v}</span>
+        </button>
+      `).join("")}
+    </div>
+    <div class="mock-actions" style="margin-top:12px;">
+      ${isLast
+        ? `<button class="btn-submit" onclick="submitMock()">Submit Exam ✓</button>`
+        : `<button class="btn-next-mock" onclick="goMockQ(${state.mockCurrent + 1})">Next →</button>`
+      }
+    </div>
+  `;
+}
+
+function goMockQ(i) {
+  state.mockCurrent = i;
+  renderMockNav();
+  renderMockQuestion();
+}
+
+function answerMock(opt) {
+  state.mockAnswers[state.mockCurrent] = opt;
+  renderMockNav();
+  renderMockQuestion();
+}
+
+function submitMock() {
+  clearInterval(state.mockTimer);
+  state.mockRunning = false;
+  state.mockDone = true;
+  document.getElementById("mockExam").classList.add("hidden");
+
+  const correct = state.mockQuestions.reduce((a, q, i) => a + (state.mockAnswers[i] === q.answer ? 1 : 0), 0);
+  const total = state.mockQuestions.length;
+  const pct = Math.round((correct / total) * 100);
+  const icon = correct >= 7 ? "🏆" : correct >= 5 ? "👍" : "📚";
+  const msg = correct >= 7 ? "Excellent work! 🔥" : correct >= 5 ? "Good effort! Keep going 💪" : "Keep practising! You'll get there 📖";
+
+  const resultDiv = document.getElementById("mockResult");
+  resultDiv.classList.remove("hidden");
+  resultDiv.innerHTML = `
+    <div class="result-icon">${icon}</div>
+    <div class="result-title">Exam Complete!</div>
+    <div class="result-score">${correct}/${total}</div>
+    <div class="result-msg">${pct}% · ${msg}</div>
+    <div class="result-list">
+      ${state.mockQuestions.map((q, i) => `
+        <div class="result-item ${state.mockAnswers[i] === q.answer ? "correct-item" : "wrong-item"}">
+          <div class="result-item-label">
+            Q${i+1} · ${state.mockAnswers[i] === q.answer ? "✅ Correct" : `❌ You: ${state.mockAnswers[i] || "—"} · Answer: ${q.answer}`}
+          </div>
+          <div class="result-item-q">${q.question.substring(0, 90)}...</div>
+        </div>
+      `).join("")}
+    </div>
+    <button class="btn-primary" onclick="startMock()">Try Another Mock →</button>
+  `;
+}
+
+function endMock() {
+  clearInterval(state.mockTimer);
+  switchTab("home");
+}
+
+// ═══════════════ CHAT ═══════════════
+function handleChatKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+async function sendChat() {
+  const input = document.getElementById("chatInput");
+  const msg = input.value.trim();
+  if (!msg || state.chatLoading) return;
+  if (!state.isPaid && state.freeUsed >= FREE_LIMIT) { showScreen("paywall"); return; }
+
+  state.chatHistory.push({ role: "user", content: msg });
+  input.value = "";
+  state.chatLoading = true;
+  if (!state.isPaid) state.freeUsed++;
+  renderChat();
+
+  const reply = await callClaude(
+    state.chatHistory.map(m => ({ role: m.role, content: m.content }))
+  );
+
+  state.chatHistory.push({ role: "assistant", content: reply });
+  state.chatLoading = false;
+  renderChat();
+}
+
+function renderChat() {
+  const container = document.getElementById("chatMessages");
+  container.innerHTML = state.chatHistory.map(m => `
+    <div class="msg ${m.role}">
+      <div class="msg-bubble">${m.content.replace(/\n/g, "<br>")}</div>
+    </div>
+  `).join("");
+
+  if (state.chatLoading) {
+    container.innerHTML += `<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  }
+
+  container.scrollTop = container.scrollHeight;
+}
+
+// ═══════════════ PAYMENT ═══════════════
+function handlePayment() {
+  const email = document.getElementById("payEmail").value.trim();
+  if (!email) { alert("Please enter your email address"); return; }
+
+  const handler = PaystackPop.setup({
+    key: PAYSTACK_KEY,
+    email: email,
+    amount: PRICE_KOBO,
+    currency: "NGN",
+    ref: "EXCELEDU_" + Date.now(),
+    metadata: { custom_fields: [{ display_name: "Plan", value: "ExcelEdu Monthly ₦5,000" }] },
+    callback: function(response) {
+      if (response.status === "success") {
+        state.isPaid = true;
+        updateHeader();
+        showScreen("success");
+      }
+    },
+    onClose: function() {}
+  });
+  handler.openIframe();
+}
+
+// ═══════════════ INIT ═══════════════
+renderSubjects();
+updateHeader();
+</script>
+</body>
+</html>
