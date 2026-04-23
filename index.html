@@ -391,7 +391,22 @@ function showScreen(id) {
   window.scrollTo(0,0);
 }
 
-function goToApp() { showScreen("app"); switchTab("home"); }
+function goToApp() {
+  S.freeUsed = 0;
+  S.isPaid = false;
+  showScreen("app");
+  // Show home tab manually without triggering quiz
+  ["home","quiz","mock","chat"].forEach(t => {
+    const el = document.getElementById(t+"Screen");
+    const btn = document.getElementById("tab-"+t);
+    if(el) { el.classList.add("hidden"); el.style.display=""; }
+    if(btn) btn.classList.remove("active");
+  });
+  document.getElementById("chatScreen").style.display = "none";
+  document.getElementById("homeScreen").classList.remove("hidden");
+  document.getElementById("tab-home").classList.add("active");
+  updateHeader();
+}
 
 // ── TABS ──
 function switchTab(tab) {
