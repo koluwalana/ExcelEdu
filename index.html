@@ -374,9 +374,18 @@ async function callAI(messages) {
 }
 
 async function generateQuestion(subject, exam) {
-  const text = await callAI([{role:"user", content:`Generate a ${exam} ${subject} multiple choice question. Return ONLY valid JSON, nothing else.`}]);
-  try { return JSON.parse(text.replace(/```json|```/g,"").trim()); }
-  catch { return null; }
+  try {
+    const text = await callAI([{role:"user", content:`Generate a ${exam} ${subject} multiple choice question. Return ONLY valid JSON, nothing else.`}]);
+    if (!text) return null;
+    const clean = text.replace(/```json|```/g,"").trim();
+    const start = clean.indexOf("{");
+    const end = clean.lastIndexOf("}");
+    if (start === -1 || end === -1) return null;
+    return JSON.parse(clean.substring(start, end+1));
+  } catch(e) { 
+    console.error("Question gen error:", e);
+    return null; 
+  }
 }
 
 // ── SCREENS ──
@@ -480,7 +489,12 @@ function startQuiz() {
     const q = await generateQuestion(S.subject, S.exam);
     S.currentQ = q;
     document.getElementById("quizLoading").classList.add("hidden");
-    if(q) renderQuestion(q);
+    if(q) { 
+      renderQuestion(q); 
+    } else {
+      document.getElementById("quizContent").classList.remove("hidden");
+      document.getElementById("questionText").innerHTML = "<span style=color:red>Failed to load question. Please check your internet and try again.</span>";
+    }
   });
 }
 
