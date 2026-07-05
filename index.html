@@ -328,7 +328,7 @@
         <span class="section-label">Year</span>
         <div class="years-grid" id="yearsGrid"></div>
         <button class="btn-primary" onclick="startPast()">Load Past Questions →</button>
-        <p style="text-align:center;font-size:11px;color:#aaa;margin-top:10px;font-weight:600;">Questions are recalled by AI from real past papers and may be reconstructed where exact records aren't available.</p>
+        <p style="text-align:center;font-size:11px;color:#aaa;margin-top:10px;font-weight:600;">Questions come from a verified past-question bank where available; otherwise AI recalls them from real past papers.</p>
       </div>
       <div id="pastLoading" class="loading-box hidden">
         <div class="spin" style="font-size:40px;">📚</div>
@@ -616,6 +616,14 @@ function selectPastExam(e) {
 
 function selectPastYear(y) { S.pastYear = y; renderPastYears(); }
 
+async function fetchPastBank(exam, subject, year, count) {
+  try {
+    const r = await fetch(`/api/past?exam=${encodeURIComponent(exam)}&subject=${encodeURIComponent(subject)}&year=${year}&count=${count}`);
+    const d = await r.json();
+    return (d.questions && d.questions.length) ? d.questions : null;
+  } catch(e) { return null; }
+}
+
 async function generatePastQuestions(exam, subject, year, count, avoid) {
   const paper = exam === "JAMB" ? "UTME" : "May/June WASSCE";
   const avoidNote = avoid && avoid.length
@@ -647,8 +655,18 @@ function startPast() {
     document.getElementById("pastLoading").classList.remove("hidden");
     document.getElementById("pastLoadingSub").textContent = `${S.pastExam} ${S.pastYear} · ${S.pastSubject}`;
     const key = `${S.pastExam}|${S.pastSubject}|${S.pastYear}`;
-    const seen = (S.pastCache[key]||[]).map(q => q.question.substring(0,80));
-    const qs = await generatePastQuestions(S.pastExam, S.pastSubject, S.pastYear, PAST_BATCH, seen.slice(-10));
+    const cached = S.pastCache[key]||[];
+    const seenTexts = new Set(cached.map(q => q.question));
+    // Real question bank first; AI recall as fallback
+    let qs = await fetchPastBank(S.pastExam, S.pastSubject, S.pastYear, PAST_BATCH);
+    if (qs) {
+      qs = qs.filter(q => !seenTexts.has(q.question)).slice(0, PAST_BATCH);
+    }
+    if (!qs || !qs.length) {
+      const seen = cached.map(q => q.question.substring(0,80));
+      qs = await generatePastQuestions(S.pastExam, S.pastSubject, S.pastYear, PAST_BATCH, seen.slice(-10));
+      if (qs) qs.forEach(q => { q.source = "ai"; });
+    }
     document.getElementById("pastLoading").classList.add("hidden");
     if (!qs) {
       document.getElementById("pastSetup").classList.remove("hidden");
@@ -670,7 +688,8 @@ function renderPastQuestion() {
   document.getElementById("pastQuestionArea").classList.remove("hidden");
   document.getElementById("pastBadge").textContent = `${S.pastExam} ${S.pastYear} · ${S.pastSubject}`;
   document.getElementById("pastProgress").textContent = `Q${S.pastIdx+1}/${S.pastQs.length}`;
-  document.getElementById("pastQLabel").textContent = `${S.pastExam} ${S.pastYear} · Question ${S.pastIdx+1} of ${S.pastQs.length}`;
+  const srcTag = q.source === "bank" ? " · ✓ Real past question" : " · AI-recalled";
+  document.getElementById("pastQLabel").textContent = `${S.pastExam} ${q.examyear||S.pastYear} · Question ${S.pastIdx+1} of ${S.pastQs.length}${srcTag}`;
   document.getElementById("pastQuestionText").textContent = q.question;
   document.getElementById("pastExplanationBox").classList.add("hidden");
   document.getElementById("pastNextBtn").classList.add("hidden");
@@ -704,11 +723,26 @@ function handlePastAnswer(opt) {
   }
   document.getElementById("pastExplanationBox").classList.remove("hidden");
   document.getElementById("pastExplanationTitle").textContent = correct ? "✅ Correct! Well done!" : "❌ Not quite — here's why:";
-  document.getElementById("pastExplanationText").textContent = q.explanation;
+  if (q.explanation) {
+    document.getElementById("pastExplanationText").textContent = q.explanation;
+  } else {
+    document.getElementById("pastExplanationText").textContent = "Getting explanation...";
+    explainPastQuestion(q);
+  }
   const nextBtn = document.getElementById("pastNextBtn");
   nextBtn.textContent = S.pastIdx === S.pastQs.length-1 ? "See My Score →" : "Next Question →";
   nextBtn.classList.remove("hidden");
   updateHeader();
+}
+
+async function explainPastQuestion(q) {
+  const optsText = Object.entries(q.options).map(([k,v]) => `${k}. ${v}`).join("\n");
+  const text = await callAI([{role:"user", content:`Explain briefly and clearly why option ${q.answer} is the correct answer to this ${S.pastExam} past question, in simple English for Nigerian SS2/SS3 students. Respond in plain text only — no JSON, no markdown.\n\n${q.question}\n${optsText}`}], 512);
+  q.explanation = text || "Sorry, couldn't load the explanation. The correct answer is " + q.answer + ".";
+  // Only update the DOM if this question is still the one on screen
+  if (S.pastQs[S.pastIdx] === q && S.pastAnswered) {
+    document.getElementById("pastExplanationText").textContent = q.explanation;
+  }
 }
 
 function nextPastQuestion() {
