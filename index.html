@@ -289,7 +289,7 @@
       <div id="quizLoading" class="loading-box"><div class="spin" style="font-size:40px;">⏳</div><p>Generating your question...</p></div>
       <div id="quizContent" class="hidden">
         <div class="card" style="margin-bottom:16px;">
-          <div class="question-label">Question</div>
+          <div class="question-label" id="questionLabel">Question</div>
           <div class="question-text" id="questionText"></div>
         </div>
         <div class="options-list" id="optionsList"></div>
@@ -348,6 +348,13 @@
 const PAYSTACK_KEY = "pk_test_907954679d2f09b6314f874efe38fe702dd313d0";
 const FREE_LIMIT = 3;
 const SUBJECTS = ["Mathematics","English Language","Biology","Chemistry","Physics","Government","Economics","Literature","Geography","Commerce","Agricultural Science","Christian Religious Studies","Islamic Religious Studies"];
+const ALOC_SUBJECT = {
+  "Mathematics":"mathematics", "English Language":"english", "Biology":"biology", "Chemistry":"chemistry",
+  "Physics":"physics", "Government":"government", "Economics":"economics", "Literature":"englishlit",
+  "Geography":"geography", "Commerce":"commerce", "Agricultural Science":"agriculture",
+  "Christian Religious Studies":"crk", "Islamic Religious Studies":"irk"
+};
+const ALOC_TYPE = { JAMB:"utme", WAEC:"wassce" };
 const SYSTEM_PROMPT = `You are ExcelEdu AI, a brilliant Nigerian exam prep tutor for JAMB and WAEC. When asked to generate a question respond ONLY with valid JSON (no markdown, no extra text): {"question":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"answer":"A","explanation":"Clear encouraging explanation in simple English for Nigerian SS2/SS3 students."} For chat, respond as a warm encouraging Nigerian tutor in simple English.`;
 
 let S = {
@@ -373,7 +380,19 @@ async function callAI(messages) {
   } catch(e) { return ""; }
 }
 
-async function generateQuestion(subject, exam) {
+async function fetchPastQuestions(subject, exam, count) {
+  const alocSubject = ALOC_SUBJECT[subject];
+  if (!alocSubject) return [];
+  try {
+    const params = new URLSearchParams({ subject: alocSubject, type: ALOC_TYPE[exam] || "utme", count });
+    const r = await fetch(`/api/questions?${params.toString()}`);
+    if (!r.ok) return [];
+    const d = await r.json();
+    return Array.isArray(d.questions) ? d.questions : [];
+  } catch(e) { return []; }
+}
+
+async function generateQuestionAI(subject, exam) {
   try {
     const text = await callAI([{role:"user", content:`Generate a ${exam} ${subject} multiple choice question. Return ONLY valid JSON, nothing else.`}]);
     if (!text) return null;
@@ -382,10 +401,16 @@ async function generateQuestion(subject, exam) {
     const end = clean.lastIndexOf("}");
     if (start === -1 || end === -1) return null;
     return JSON.parse(clean.substring(start, end+1));
-  } catch(e) { 
+  } catch(e) {
     console.error("Question gen error:", e);
-    return null; 
+    return null;
   }
+}
+
+async function generateQuestion(subject, exam) {
+  const [past] = await fetchPastQuestions(subject, exam, 1);
+  if (past) return past;
+  return generateQuestionAI(subject, exam);
 }
 
 // ── SCREENS ──
@@ -500,6 +525,7 @@ function startQuiz() {
 
 function renderQuestion(q) {
   document.getElementById("quizContent").classList.remove("hidden");
+  document.getElementById("questionLabel").textContent = q.source ? `Past Question · ${q.source}` : "Question";
   document.getElementById("questionText").textContent = q.question;
   document.getElementById("optionsList").innerHTML = Object.entries(q.options).map(([k,v]) =>
     `<button class="option-btn" id="opt-${k}" onclick="handleAnswer('${k}')">
@@ -544,8 +570,10 @@ async function startMock() {
     document.getElementById("mockLoading").classList.remove("hidden");
     document.getElementById("mockProgress").textContent="0/10";
     document.getElementById("mockTimer").textContent="⏱️ 30:00";
-    const qs = await Promise.all(Array.from({length:10},()=>generateQuestion(S.subject,S.exam)));
-    S.mockQs = qs.filter(Boolean);
+    const past = await fetchPastQuestions(S.subject, S.exam, 10);
+    const needed = 10 - past.length;
+    const aiQs = needed > 0 ? await Promise.all(Array.from({length:needed},()=>generateQuestionAI(S.subject,S.exam))) : [];
+    S.mockQs = [...past, ...aiQs].filter(Boolean);
     document.getElementById("mockLoading").classList.add("hidden");
     document.getElementById("mockExam").classList.remove("hidden");
     renderMockNav(); renderMockQuestion(); startMockTimer();
@@ -579,7 +607,7 @@ function renderMockQuestion() {
   const isLast = S.mockCurrent === S.mockQs.length-1;
   document.getElementById("mockQuestionArea").innerHTML=`
     <div class="card" style="margin-bottom:14px;">
-      <div class="question-label">Question ${S.mockCurrent+1}</div>
+      <div class="question-label">${q.source ? `Past Question ${S.mockCurrent+1} · ${q.source}` : `Question ${S.mockCurrent+1}`}</div>
       <div class="question-text">${q.question}</div>
     </div>
     <div class="options-list">
