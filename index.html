@@ -80,6 +80,13 @@
     .subject-btn.active { border-color:var(--green); background:var(--green-light); color:var(--green-dark); font-weight:800; }
     .action-row { display:flex; flex-direction:column; gap:12px; }
 
+    /* PAST QUESTIONS */
+    .years-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:24px; }
+    .year-btn { padding:10px 4px; border-radius:10px; text-align:center; border:2px solid transparent; background:#fff; color:#444; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.15s; font-family:'Nunito',sans-serif; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+    .year-btn.active { border-color:var(--green); background:var(--green-light); color:var(--green-dark); font-weight:900; }
+    .subject-select { width:100%; padding:12px 14px; border-radius:10px; border:2px solid var(--border); font-size:14px; font-family:'Nunito',sans-serif; font-weight:700; color:var(--text); outline:none; background:#fff; margin-bottom:20px; }
+    .subject-select:focus { border-color:var(--green); }
+
     /* QUIZ */
     .quiz-topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
     .subject-badge { background:var(--green-light); border:1px solid var(--green); border-radius:20px; padding:4px 14px; font-size:12px; color:var(--green-dark); font-weight:800; }
@@ -191,6 +198,8 @@
     <div class="feature-card" style="animation-delay:0.1s"><div class="feature-icon">🤖</div><div class="feature-title">AI Tutor Chat</div><div class="feature-desc">Ask any question, get instant clear explanations</div></div>
     <div class="feature-card" style="animation-delay:0.2s"><div class="feature-icon">⏱️</div><div class="feature-title">Mock Exams</div><div class="feature-desc">Full timed exams just like the real thing</div></div>
     <div class="feature-card" style="animation-delay:0.3s"><div class="feature-icon">📊</div><div class="feature-title">Track Progress</div><div class="feature-desc">See your score and accuracy improve daily</div></div>
+    <div class="feature-card" style="animation-delay:0.4s"><div class="feature-icon">📚</div><div class="feature-title">Past Questions</div><div class="feature-desc">20 years of JAMB & WAEC past questions, year by year</div></div>
+    <div class="feature-card" style="animation-delay:0.5s"><div class="feature-icon">🎯</div><div class="feature-title">Syllabus Aligned</div><div class="feature-desc">Every question follows the official exam syllabus</div></div>
   </div>
   <div class="price-card" style="margin-top:28px;">
     <div class="price-amount">₦5,000/month</div>
@@ -198,6 +207,7 @@
     <div class="price-item">✓ Unlimited practice questions</div>
     <div class="price-item">✓ AI tutor available 24/7</div>
     <div class="price-item">✓ Timed mock exams</div>
+    <div class="price-item">✓ 20 years of past questions</div>
     <div class="price-item">✓ 13 subjects covered</div>
     <div class="price-item">✓ JAMB + WAEC syllabus</div>
     <button class="price-btn" onclick="goToApp()">Get Started Free →</button>
@@ -257,6 +267,7 @@
       <div class="tabs">
         <button class="tab active" id="tab-home" onclick="switchTab('home')"><span class="tab-icon">🏠</span>Home</button>
         <button class="tab" id="tab-quiz" onclick="switchTab('home')"><span class="tab-icon">📝</span>Practice</button>
+        <button class="tab" id="tab-past" onclick="switchTab('past')"><span class="tab-icon">📚</span>Past Qs</button>
         <button class="tab" id="tab-mock" onclick="switchTab('mock')"><span class="tab-icon">⏱️</span>Mock</button>
         <button class="tab" id="tab-chat" onclick="switchTab('chat')"><span class="tab-icon">💬</span>Tutor</button>
       </div>
@@ -275,6 +286,7 @@
       <div class="subjects-grid" id="subjectsGrid"></div>
       <div class="action-row">
         <button class="btn-primary" onclick="startQuiz()">Start Practice Questions →</button>
+        <button class="btn-secondary" onclick="goPastTab()">📚 Past Questions (Last 20 Years)</button>
         <button class="btn-secondary" onclick="startMock()">⏱️ Start 30-Min Mock Exam</button>
       </div>
     </div>
@@ -298,6 +310,50 @@
           <div class="explanation-text" id="explanationText"></div>
         </div>
         <button id="nextBtn" class="btn-primary hidden" onclick="nextQuestion()">Next Question →</button>
+      </div>
+    </div>
+
+    <!-- PAST QUESTIONS -->
+    <div id="pastScreen" class="content hidden">
+      <div id="pastSetup">
+        <h2 style="font-family:'Fredoka One',cursive;font-size:24px;color:#00922e;margin-bottom:6px;">Past Questions 📚</h2>
+        <p style="color:#6b8f76;font-size:14px;margin-bottom:24px;font-weight:600;">Real JAMB & WAEC questions from the last 20 years — with step-by-step explanations.</p>
+        <span class="section-label">Exam</span>
+        <div class="exam-row">
+          <button class="exam-btn active" id="pastExamJAMB" onclick="selectPastExam('JAMB')">JAMB</button>
+          <button class="exam-btn" id="pastExamWAEC" onclick="selectPastExam('WAEC')">WAEC</button>
+        </div>
+        <span class="section-label">Subject</span>
+        <select id="pastSubject" class="subject-select"></select>
+        <span class="section-label">Year</span>
+        <div class="years-grid" id="yearsGrid"></div>
+        <button class="btn-primary" onclick="startPast()">Load Past Questions →</button>
+        <p style="text-align:center;font-size:11px;color:#aaa;margin-top:10px;font-weight:600;">Questions come from a verified past-question bank where available; otherwise AI recalls them from real past papers.</p>
+      </div>
+      <div id="pastLoading" class="loading-box hidden">
+        <div class="spin" style="font-size:40px;">📚</div>
+        <p>Fetching past questions...</p>
+        <p style="color:#aaa;font-size:13px;margin-top:6px;" id="pastLoadingSub"></p>
+      </div>
+      <div id="pastContent" class="hidden">
+        <div class="quiz-topbar">
+          <button class="btn-ghost" onclick="backToPastSetup()">← Years</button>
+          <div class="subject-badge" id="pastBadge"></div>
+          <div class="score-text" id="pastProgress"></div>
+        </div>
+        <div id="pastQuestionArea">
+          <div class="card" style="margin-bottom:16px;">
+            <div class="question-label" id="pastQLabel"></div>
+            <div class="question-text" id="pastQuestionText"></div>
+          </div>
+          <div class="options-list" id="pastOptionsList"></div>
+          <div id="pastExplanationBox" class="explanation-box hidden">
+            <div class="explanation-title" id="pastExplanationTitle"></div>
+            <div class="explanation-text" id="pastExplanationText"></div>
+          </div>
+          <button id="pastNextBtn" class="btn-primary hidden" onclick="nextPastQuestion()">Next Question →</button>
+        </div>
+        <div id="pastSummary" class="hidden"></div>
       </div>
     </div>
 
@@ -348,6 +404,9 @@
 const PAYSTACK_KEY = "pk_test_907954679d2f09b6314f874efe38fe702dd313d0";
 const FREE_LIMIT = 3;
 const SUBJECTS = ["Mathematics","English Language","Biology","Chemistry","Physics","Government","Economics","Literature","Geography","Commerce","Agricultural Science","Christian Religious Studies","Islamic Religious Studies"];
+const CURRENT_YEAR = new Date().getFullYear();
+const PAST_YEARS = Array.from({length:21},(_,i)=>CURRENT_YEAR-i); // past 20 years till date
+const PAST_BATCH = 5;
 const SYSTEM_PROMPT = `You are ExcelEdu AI, a brilliant Nigerian exam prep tutor for JAMB and WAEC. When asked to generate a question respond ONLY with valid JSON (no markdown, no extra text): {"question":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"answer":"A","explanation":"Clear encouraging explanation in simple English for Nigerian SS2/SS3 students."} For chat, respond as a warm encouraging Nigerian tutor in simple English.`;
 
 let S = {
@@ -356,17 +415,19 @@ let S = {
   currentQ:null, answered:false,
   mockQs:[], mockAnswers:{}, mockCurrent:0,
   mockTime:0, mockRunning:false, mockDone:false, mockTimer:null,
+  pastExam:"JAMB", pastSubject:"Mathematics", pastYear:CURRENT_YEAR-1,
+  pastQs:[], pastIdx:0, pastAnswered:false, pastScore:{correct:0,total:0}, pastCache:{},
   chatHistory:[{role:"assistant",content:"👋 Welcome to ExcelEdu AI! I'm your personal JAMB & WAEC tutor. Ask me anything — past question topics, explanations, formulas, anything at all. Let's get you that A1! 🎯"}],
   chatLoading:false
 };
 
 // ── API ──
-async function callAI(messages) {
+async function callAI(messages, maxTokens) {
   try {
     const r = await fetch("/api/ask", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({messages, system: SYSTEM_PROMPT})
+      body:JSON.stringify({messages, system: SYSTEM_PROMPT, maxTokens})
     });
     const d = await r.json();
     return d.text || "";
@@ -405,7 +466,7 @@ function goToApp() {
   S.isPaid = false;
   showScreen("app");
   // Show home tab manually without triggering quiz
-  ["home","quiz","mock","chat"].forEach(t => {
+  ["home","quiz","past","mock","chat"].forEach(t => {
     const el = document.getElementById(t+"Screen");
     const btn = document.getElementById("tab-"+t);
     if(el) { el.classList.add("hidden"); el.style.display=""; }
@@ -419,7 +480,7 @@ function goToApp() {
 
 // ── TABS ──
 function switchTab(tab) {
-  ["home","quiz","mock","chat"].forEach(t => {
+  ["home","quiz","past","mock","chat"].forEach(t => {
     const s = document.getElementById(t+"Screen");
     const b = document.getElementById("tab-"+t);
     if(s) { s.classList.add("hidden"); s.style.display=""; }
@@ -531,6 +592,190 @@ function handleAnswer(opt) {
 }
 
 function nextQuestion() { gateCheck(()=>startQuiz()); }
+
+// ── PAST QUESTIONS ──
+function goPastTab() { switchTab("past"); }
+
+function renderPastYears() {
+  document.getElementById("yearsGrid").innerHTML = PAST_YEARS.map(y =>
+    `<button class="year-btn ${y===S.pastYear?"active":""}" onclick="selectPastYear(${y})">${y}</button>`
+  ).join("");
+}
+
+function renderPastSubjects() {
+  document.getElementById("pastSubject").innerHTML = SUBJECTS.map(s =>
+    `<option value="${s}" ${s===S.pastSubject?"selected":""}>${s}</option>`
+  ).join("");
+}
+
+function selectPastExam(e) {
+  S.pastExam = e;
+  document.getElementById("pastExamJAMB").classList.toggle("active", e==="JAMB");
+  document.getElementById("pastExamWAEC").classList.toggle("active", e==="WAEC");
+}
+
+function selectPastYear(y) { S.pastYear = y; renderPastYears(); }
+
+async function fetchPastBank(exam, subject, year, count) {
+  try {
+    const r = await fetch(`/api/past?exam=${encodeURIComponent(exam)}&subject=${encodeURIComponent(subject)}&year=${year}&count=${count}`);
+    const d = await r.json();
+    return (d.questions && d.questions.length) ? d.questions : null;
+  } catch(e) { return null; }
+}
+
+async function generatePastQuestions(exam, subject, year, count, avoid) {
+  const paper = exam === "JAMB" ? "UTME" : "May/June WASSCE";
+  const avoidNote = avoid && avoid.length
+    ? `\nDo NOT repeat any of these questions the student has already seen:\n${avoid.map(q=>"- "+q).join("\n")}`
+    : "";
+  const prompt = `You are recalling REAL past exam questions. Give me ${count} authentic ${exam} ${subject} past questions from the ${year} ${paper} exam. Use actual questions that appeared in that year's paper wherever you know them; if you are not certain of the exact wording, reconstruct the question faithfully in the style, topics and difficulty of the ${year} ${exam} ${subject} paper.${avoidNote}
+Respond ONLY with a valid JSON array (no markdown, no extra text) of exactly ${count} objects, each shaped like: {"question":"...","options":{"A":"...","B":"...","C":"...","D":"..."},"answer":"A","explanation":"Clear step-by-step explanation in simple English for Nigerian SS2/SS3 students."}`;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const text = await callAI([{role:"user", content:prompt}], 3500);
+    if (!text) continue;
+    try {
+      const clean = text.replace(/```json|```/g,"").trim();
+      const start = clean.indexOf("[");
+      const end = clean.lastIndexOf("]");
+      if (start === -1 || end === -1) continue;
+      const arr = JSON.parse(clean.substring(start, end+1));
+      const valid = (Array.isArray(arr)?arr:[]).filter(q => q && q.question && q.options && q.answer && q.explanation);
+      if (valid.length) return valid;
+    } catch(e) { console.error("Past question parse error:", e); }
+  }
+  return null;
+}
+
+function startPast() {
+  gateCheck(async () => {
+    S.pastSubject = document.getElementById("pastSubject").value || S.pastSubject;
+    document.getElementById("pastSetup").classList.add("hidden");
+    document.getElementById("pastContent").classList.add("hidden");
+    document.getElementById("pastLoading").classList.remove("hidden");
+    document.getElementById("pastLoadingSub").textContent = `${S.pastExam} ${S.pastYear} · ${S.pastSubject}`;
+    const key = `${S.pastExam}|${S.pastSubject}|${S.pastYear}`;
+    const cached = S.pastCache[key]||[];
+    const seenTexts = new Set(cached.map(q => q.question));
+    // Real question bank first; AI recall as fallback
+    let qs = await fetchPastBank(S.pastExam, S.pastSubject, S.pastYear, PAST_BATCH);
+    if (qs) {
+      qs = qs.filter(q => !seenTexts.has(q.question)).slice(0, PAST_BATCH);
+    }
+    if (!qs || !qs.length) {
+      const seen = cached.map(q => q.question.substring(0,80));
+      qs = await generatePastQuestions(S.pastExam, S.pastSubject, S.pastYear, PAST_BATCH, seen.slice(-10));
+      if (qs) qs.forEach(q => { q.source = "ai"; });
+    }
+    document.getElementById("pastLoading").classList.add("hidden");
+    if (!qs) {
+      document.getElementById("pastSetup").classList.remove("hidden");
+      alert("Couldn't load past questions. Please check your internet and try again.");
+      return;
+    }
+    S.pastCache[key] = (S.pastCache[key]||[]).concat(qs);
+    S.pastQs = qs; S.pastIdx = 0; S.pastScore = {correct:0,total:0};
+    document.getElementById("pastContent").classList.remove("hidden");
+    renderPastQuestion();
+  });
+}
+
+function renderPastQuestion() {
+  const q = S.pastQs[S.pastIdx];
+  if (!q) return;
+  S.pastAnswered = false;
+  document.getElementById("pastSummary").classList.add("hidden");
+  document.getElementById("pastQuestionArea").classList.remove("hidden");
+  document.getElementById("pastBadge").textContent = `${S.pastExam} ${S.pastYear} · ${S.pastSubject}`;
+  document.getElementById("pastProgress").textContent = `Q${S.pastIdx+1}/${S.pastQs.length}`;
+  const srcTag = q.source === "bank" ? " · ✓ Real past question" : " · AI-recalled";
+  document.getElementById("pastQLabel").textContent = `${S.pastExam} ${q.examyear||S.pastYear} · Question ${S.pastIdx+1} of ${S.pastQs.length}${srcTag}`;
+  document.getElementById("pastQuestionText").textContent = q.question;
+  document.getElementById("pastExplanationBox").classList.add("hidden");
+  document.getElementById("pastNextBtn").classList.add("hidden");
+  document.getElementById("pastOptionsList").innerHTML = Object.keys(q.options).map(k =>
+    `<button class="option-btn" id="pastOpt-${k}" onclick="handlePastAnswer('${k}')">
+      <span class="option-key">${k}</span><span class="option-val"></span>
+    </button>`
+  ).join("");
+  Object.entries(q.options).forEach(([k,v]) => {
+    const el = document.querySelector(`#pastOpt-${k} .option-val`);
+    if (el) el.textContent = v;
+  });
+}
+
+function handlePastAnswer(opt) {
+  if (S.pastAnswered) return;
+  if (!S.isPaid && S.freeUsed >= FREE_LIMIT) { showScreen("paywall"); return; }
+  S.pastAnswered = true;
+  const q = S.pastQs[S.pastIdx];
+  const correct = opt === q.answer;
+  S.pastScore.correct += correct?1:0; S.pastScore.total++;
+  S.score.correct += correct?1:0; S.score.total++;
+  S.streak = correct ? S.streak+1 : 0;
+  if (!S.isPaid) S.freeUsed++;
+  document.querySelectorAll("#pastOptionsList .option-btn").forEach(b => b.disabled = true);
+  const ansBtn = document.getElementById("pastOpt-"+q.answer);
+  if (ansBtn) ansBtn.classList.add("correct");
+  if (!correct) {
+    const myBtn = document.getElementById("pastOpt-"+opt);
+    if (myBtn) myBtn.classList.add("wrong");
+  }
+  document.getElementById("pastExplanationBox").classList.remove("hidden");
+  document.getElementById("pastExplanationTitle").textContent = correct ? "✅ Correct! Well done!" : "❌ Not quite — here's why:";
+  if (q.explanation) {
+    document.getElementById("pastExplanationText").textContent = q.explanation;
+  } else {
+    document.getElementById("pastExplanationText").textContent = "Getting explanation...";
+    explainPastQuestion(q);
+  }
+  const nextBtn = document.getElementById("pastNextBtn");
+  nextBtn.textContent = S.pastIdx === S.pastQs.length-1 ? "See My Score →" : "Next Question →";
+  nextBtn.classList.remove("hidden");
+  updateHeader();
+}
+
+async function explainPastQuestion(q) {
+  const optsText = Object.entries(q.options).map(([k,v]) => `${k}. ${v}`).join("\n");
+  const text = await callAI([{role:"user", content:`Explain briefly and clearly why option ${q.answer} is the correct answer to this ${S.pastExam} past question, in simple English for Nigerian SS2/SS3 students. Respond in plain text only — no JSON, no markdown.\n\n${q.question}\n${optsText}`}], 512);
+  q.explanation = text || "Sorry, couldn't load the explanation. The correct answer is " + q.answer + ".";
+  // Only update the DOM if this question is still the one on screen
+  if (S.pastQs[S.pastIdx] === q && S.pastAnswered) {
+    document.getElementById("pastExplanationText").textContent = q.explanation;
+  }
+}
+
+function nextPastQuestion() {
+  if (S.pastIdx < S.pastQs.length-1) { S.pastIdx++; renderPastQuestion(); }
+  else showPastSummary();
+}
+
+function showPastSummary() {
+  document.getElementById("pastQuestionArea").classList.add("hidden");
+  const {correct,total} = S.pastScore;
+  const pct = total ? Math.round((correct/total)*100) : 0;
+  const icon = pct>=70?"🏆":pct>=50?"👍":"📚";
+  const msg = pct>=70?"Excellent! You'd smash this paper 🔥":pct>=50?"Good effort! Keep drilling 💪":"Keep practising past papers — it works 📖";
+  const sum = document.getElementById("pastSummary");
+  sum.classList.remove("hidden");
+  sum.innerHTML = `
+    <div class="result-screen">
+      <div class="result-icon">${icon}</div>
+      <div class="result-title">${S.pastExam} ${S.pastYear} Done!</div>
+      <div class="result-score">${correct}/${total}</div>
+      <div class="result-msg">${pct}% on ${S.pastYear} ${S.pastSubject} · ${msg}</div>
+      <div class="action-row">
+        <button class="btn-primary" onclick="startPast()">Load ${PAST_BATCH} More from ${S.pastYear} →</button>
+        <button class="btn-secondary" onclick="backToPastSetup()">🗓️ Pick Another Year</button>
+      </div>
+    </div>`;
+}
+
+function backToPastSetup() {
+  document.getElementById("pastContent").classList.add("hidden");
+  document.getElementById("pastLoading").classList.add("hidden");
+  document.getElementById("pastSetup").classList.remove("hidden");
+}
 
 // ── MOCK ──
 async function startMock() {
@@ -667,6 +912,8 @@ function handlePayment(){
 S.freeUsed = 0;
 S.isPaid = false;
 renderSubjects();
+renderPastYears();
+renderPastSubjects();
 updateHeader();
 // Always show landing page first
 document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));

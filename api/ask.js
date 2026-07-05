@@ -8,7 +8,8 @@ export default async function handler(req, res) {
   const GEMINI_KEY = process.env.GEMINI_API_KEY;
   if (!GEMINI_KEY) return res.status(500).json({ text: "", error: "Missing API key" });
 
-  const { messages, system } = req.body;
+  const { messages, system, maxTokens } = req.body;
+  const outputTokens = Math.min(Math.max(parseInt(maxTokens, 10) || 1024, 256), 8192);
   const history = messages.map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n");
   const fullPrompt = `${system}\n\n${history}\nAssistant:`;
 
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: fullPrompt }] }],
-          generationConfig: { temperature: 0.7, maxOutputTokens: 1024 }
+          generationConfig: { temperature: 0.7, maxOutputTokens: outputTokens }
         }),
       }
     );
