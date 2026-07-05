@@ -39,10 +39,15 @@
     .logo-icon { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#00c853,#00e676); display:flex; align-items:center; justify-content:center; font-family:'Fredoka One',cursive; font-size:18px; color:#fff; box-shadow:0 4px 12px rgba(0,200,83,0.35); }
     .logo-text { font-family:'Fredoka One',cursive; font-size:20px; color:var(--green-dark); }
     .nav-btn { background:linear-gradient(135deg,#00c853,#00e676); color:#fff; border:none; border-radius:20px; padding:8px 20px; font-weight:700; font-size:14px; cursor:pointer; font-family:'Nunito',sans-serif; box-shadow:0 4px 12px rgba(0,200,83,0.3); }
-    .hero { text-align:center; padding:56px 24px 40px; }
-    .hero h1 { font-family:'Fredoka One',cursive; font-size:clamp(30px,8vw,48px); color:var(--green-dark); line-height:1.15; margin-bottom:16px; }
-    .hero h1 span { color:var(--orange); }
-    .hero p { font-size:15px; color:#4a7a5a; max-width:400px; margin:0 auto 32px; line-height:1.7; font-weight:600; }
+    .hero-wrap { position:relative; overflow:hidden; background:linear-gradient(160deg,#04261a 0%,#0b5230 55%,#032015 100%); }
+    #heroVideo { position:absolute; top:50%; left:50%; min-width:100%; min-height:100%; width:auto; height:auto; transform:translate(-50%,-50%); object-fit:cover; opacity:0; transition:opacity 1.2s ease; }
+    #heroVideo.playing { opacity:1; }
+    .hero-overlay { position:absolute; inset:0; background:linear-gradient(160deg,rgba(4,38,26,0.82) 0%,rgba(0,72,40,0.55) 55%,rgba(3,32,21,0.85) 100%); }
+    @media (prefers-reduced-motion: reduce) { #heroVideo { display:none; } }
+    .hero { position:relative; text-align:center; padding:56px 24px 48px; }
+    .hero h1 { font-family:'Fredoka One',cursive; font-size:clamp(30px,8vw,48px); color:#fff; line-height:1.15; margin-bottom:16px; text-shadow:0 2px 16px rgba(0,0,0,0.35); }
+    .hero h1 span { color:#ffab40; }
+    .hero p { font-size:15px; color:rgba(255,255,255,0.88); max-width:400px; margin:0 auto 32px; line-height:1.7; font-weight:600; text-shadow:0 1px 8px rgba(0,0,0,0.3); }
     .features-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:0 20px; max-width:500px; margin:0 auto; }
     .feature-card { background:#fff; border-radius:16px; padding:18px 14px; box-shadow:0 4px 16px rgba(0,0,0,0.07); border:1px solid rgba(0,200,83,0.12); animation:pop 0.4s ease both; }
     .feature-icon { font-size:28px; margin-bottom:8px; }
@@ -186,12 +191,16 @@
     </div>
     <button class="nav-btn" onclick="goToApp()">Start Free →</button>
   </nav>
-  <div class="hero">
-    <div class="float" style="font-size:64px;margin-bottom:16px;">🎓</div>
-    <h1>Pass JAMB & WAEC<br><span>First Time. Every Time.</span></h1>
-    <p>Practice unlimited questions, get instant AI explanations, and sit timed mock exams — all for less than ₦170 per day.</p>
-    <button class="btn-primary" style="max-width:320px;" onclick="goToApp()">Try 3 Questions FREE 🚀</button>
-    <p style="margin-top:12px;font-size:12px;color:#888;">No credit card needed to start</p>
+  <div class="hero-wrap">
+    <video id="heroVideo" autoplay muted loop playsinline aria-hidden="true"></video>
+    <div class="hero-overlay"></div>
+    <div class="hero">
+      <div class="float" style="font-size:64px;margin-bottom:16px;">🎓</div>
+      <h1>Pass JAMB & WAEC<br><span>First Time. Every Time.</span></h1>
+      <p>Practice unlimited questions, get instant AI explanations, and sit timed mock exams — all for less than ₦170 per day.</p>
+      <button class="btn-primary" style="max-width:320px;" onclick="goToApp()">Try 3 Questions FREE 🚀</button>
+      <p style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.75);">No credit card needed to start</p>
+    </div>
   </div>
   <div class="features-grid">
     <div class="feature-card" style="animation-delay:0s"><div class="feature-icon">📝</div><div class="feature-title">Practice MCQs</div><div class="feature-desc">Unlimited AI-generated questions for all subjects</div></div>
@@ -906,6 +915,30 @@ function handlePayment(){
   });
   handler.openIframe();
 }
+
+// ── HERO VIDEO ──
+// Background video of a hopeful student for the landing hero. Sources are
+// tried in order; drop your own video at /hero.mp4 in the repo and it wins
+// automatically. If nothing loads, the dark scholar gradient stays as backdrop.
+const HERO_VIDEOS = [
+  "/hero.mp4",
+  "https://videos.pexels.com/video-files/6929732/6929732-hd_1920_1080_25fps.mp4",
+  "https://videos.pexels.com/video-files/8471384/8471384-hd_1920_1080_25fps.mp4"
+];
+(function initHeroVideo(){
+  const v = document.getElementById("heroVideo");
+  if(!v) return;
+  let i = 0;
+  const tryNext = () => {
+    if(i >= HERO_VIDEOS.length){ v.remove(); return; }
+    v.src = HERO_VIDEOS[i++];
+    v.load();
+    v.play().catch(()=>{});
+  };
+  v.addEventListener("error", tryNext);
+  v.addEventListener("playing", () => v.classList.add("playing"));
+  tryNext();
+})();
 
 // ── INIT ──
 // Each session starts completely fresh
